@@ -39,7 +39,7 @@ static void static_exit_handler(void) {
 /*! */
 /*----------------------------------------------------------------------------*/
 VCUDA_DEVICE_EXPORT
-vcuda::Device::Device(int devnum, std::ostream &log, char sym)
+vcuda::Device::Device(int devnum, std::ostream *log, char sym)
   : sym(sym), on(false), uniq(0), log(log)
 {
   int htod2[2];
@@ -190,7 +190,7 @@ VCUDA_DEVICE_EXPORT
 vcuda::Device::~Device(void) {
   assert(!isDev());
 
-  log << sym << "- deconstructing device#" << id << "..." << std::endl;
+  *log << sym << "- deconstructing device#" << id << "..." << std::endl;
 
   // if this is the driver side, then terminate the device side
   if (!isDev() && 0 == kill(id, SIGTERM)) {
@@ -200,14 +200,14 @@ vcuda::Device::~Device(void) {
 
   (void)sem_unlink(done_fname);
   (void)sem_unlink(work_fname);
-  log << ('`' != sym ? "|" : " ") << "  |- semaphore cleanup...done"
-      << std::endl;
+  *log << ('`' != sym ? "|" : " ") << "  |- semaphore cleanup...done"
+       << std::endl;
 
   (void)shm_del(regs);
-  log << ('`' != sym ? "|" : " ") << "  |- shared memory cleanup...done"
-      << std::endl;
+  *log << ('`' != sym ? "|" : " ") << "  |- shared memory cleanup...done"
+       << std::endl;
 
   (void)close(pipe_rd);
   (void)close(pipe_wr);
-  log << ('`' != sym ? "|" : " ") << "  `- pipe cleanup...done" << std::endl;
+  *log << ('`' != sym ? "|" : " ") << "  `- pipe cleanup...done" << std::endl;
 }

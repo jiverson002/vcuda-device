@@ -46,7 +46,7 @@ namespace vcuda {
           char args[4096];
       };
 
-      Device(int devnum, std::ostream &log, char sym);
+      Device(int devnum, std::ostream *log, char sym);
       ~Device(void);
 
       CUresult launchKernel(void);
@@ -61,6 +61,8 @@ namespace vcuda {
 
       int read(void *, size_t);
       int write(const void *, size_t);
+
+      inline pid_t get_id(void) const { return id; }
 
       registers *regs;  /*!< set of registers */
 
@@ -79,7 +81,7 @@ namespace vcuda {
       char work_fname[64];  /*!< file name of work semaphore */
       char done_fname[64];  /*!< file name of done semaphore */
 
-      std::ostream &log;
+      std::ostream *log;
 
       void* shm_new(std::size_t bytesize, const char *fname = NULL);
       int   shm_del(void *ptr);
