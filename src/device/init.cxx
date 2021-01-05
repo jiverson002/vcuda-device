@@ -40,7 +40,7 @@ static void static_exit_handler(void) {
 /*----------------------------------------------------------------------------*/
 VCUDA_DEVICE_EXPORT
 vcuda::Device::Device(int devnum, std::ostream *log, char sym)
-  : sym(sym), on(false), uniq(0), log(log)
+  : sym(sym), on(true), uniq(0), log(log)
 {
   int htod2[2];
   int dtoh2[2];
@@ -141,6 +141,7 @@ vcuda::Device::Device(int devnum, std::ostream *log, char sym)
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sa.sa_handler = static_term_handler;
+
     static_term_handler_wrapper = std::bind(&Device::term_handler, this,
                                             std::placeholders::_1);
     if (-1 == sigaction(SIGTERM, &sa, NULL))
@@ -192,11 +193,7 @@ vcuda::Device::~Device(void) {
 
   *log << sym << "- deconstructing device#" << id << "..." << std::endl;
 
-  // if this is the driver side, then terminate the device side
-  if (!isDev() && 0 == kill(id, SIGTERM)) {
-    int wstatus;
-    (void)waitpid(id, &wstatus, 0);
-  }
+  poweroff();
 
   (void)sem_unlink(done_fname);
   (void)sem_unlink(work_fname);

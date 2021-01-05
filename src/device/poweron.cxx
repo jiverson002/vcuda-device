@@ -10,14 +10,17 @@
 /*! */
 /*----------------------------------------------------------------------------*/
 VCUDA_DEVICE_EXPORT void vcuda::Device::poweron(void) {
-  on = true;
-
   while (on) {
     if (-1 == sem_wait(regs->work)) {
       if (EINTR == errno)
         continue;
       CUDEVICEPANIC();
     }
+
+    /* check again to see if the device is stilled powered on, in case it
+     * acquired regs->work only due to it being terminated. */
+    if (!on)
+      break;
 
     // dispatch the cmd on this device
     (this->*(regs->cmd))();
