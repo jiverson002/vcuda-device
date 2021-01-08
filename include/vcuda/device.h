@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ostream>
+#include <string>
 #include <vector>
 
 #include <semaphore.h>
@@ -46,7 +47,7 @@ namespace vcuda {
           char args[4096];
       };
 
-      Device(int devnum, std::ostream *log, char sym);
+      Device(int devnum, std::ostream *log, const std::string &pfx);
       ~Device(void);
 
       CUresult launchKernel(void);
@@ -59,8 +60,8 @@ namespace vcuda {
       void poweron(void);
       void poweroff(void) const;
 
-      int read(void *, size_t);
-      int write(const void *, size_t);
+      int read(void *, std::size_t) const;
+      int write(const void *, std::size_t) const;
 
       inline pid_t get_id(void) const { return id; }
 
@@ -68,7 +69,8 @@ namespace vcuda {
 
     private:
       pid_t id; /*!< device ID */
-      char sym; /*!< symbol used in pretty output */
+      int devnum; /*!< device number */
+      std::string pfx; /*!< prefix used in pretty output */
 
       volatile bool on; /*!< indicator variable that device has been powered
                              on (true) or off (false) */
@@ -87,6 +89,8 @@ namespace vcuda {
       int   shm_del(void *ptr);
 
       bool isDev(void) { return id == getpid(); }
+
+      void cleanup(const std::string&);
 
       template <typename T> inline
       const char * argget(const char *buf, T& arg) {

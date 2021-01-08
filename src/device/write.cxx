@@ -11,7 +11,7 @@
 /*! */
 /*----------------------------------------------------------------------------*/
 VCUDA_DEVICE_EXPORT int
-vcuda::Device::write(const void *vbuf, size_t num) {
+vcuda::Device::write(const void *vbuf, size_t num) const {
   const char *buf = static_cast<const char *>(vbuf);
   while (num > 0) {
     ssize_t nr = ::write(pipe_wr, buf, num);

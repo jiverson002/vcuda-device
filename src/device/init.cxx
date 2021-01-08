@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <ostream>
+#include <string>
 #include <utility>
 
 #include <fcntl.h>
@@ -39,14 +40,14 @@ static void static_exit_handler(void) {
 /*! */
 /*----------------------------------------------------------------------------*/
 VCUDA_DEVICE_EXPORT
-vcuda::Device::Device(int devnum, std::ostream *log, char sym)
-  : sym(sym), on(true), uniq(0), log(log)
+vcuda::Device::Device(int devnum, std::ostream *log, const std::string &pfx)
+  : devnum(devnum), pfx(pfx), on(true), uniq(0), log(log)
 {
   int htod2[2];
   int dtoh2[2];
 
   // registers: create shared memory object name
-  if (0 >= std::snprintf(regs_fname, sizeof(regs_fname), "/cu-registers-%d-%d", getpid(), devnum))
+  if (0 >= std::snprintf(regs_fname, sizeof(regs_fname), "/cu-regs-%d-%d", getpid(), devnum))
     GOTO(ERROR);
 
   // work: create semaphore object name
@@ -191,20 +192,11 @@ VCUDA_DEVICE_EXPORT
 vcuda::Device::~Device(void) {
   assert(!isDev());
 
-  *log << sym << "- deconstructing device#" << id << "..." << std::endl;
+  pfx.pop_back();
+  *log << pfx << "`- deconstructing device#" << devnum << "..." << std::endl;
+  pfx.push_back(' ');
 
   poweroff();
 
-  (void)sem_unlink(done_fname);
-  (void)sem_unlink(work_fname);
-  *log << ('`' != sym ? "|" : " ") << "  |- semaphore cleanup...done"
-       << std::endl;
-
-  (void)shm_del(regs);
-  *log << ('`' != sym ? "|" : " ") << "  |- shared memory cleanup...done"
-       << std::endl;
-
-  (void)close(pipe_rd);
-  (void)close(pipe_wr);
-  *log << ('`' != sym ? "|" : " ") << "  `- pipe cleanup...done" << std::endl;
+  cleanup(pfx + "  ");
 }

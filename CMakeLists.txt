@@ -26,11 +26,11 @@ add_library(${PROJECT_NAME})
 add_library(${Library_NAME}::${component_NAME} ALIAS ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
-  PRIVATE src/device/exit.cxx src/device/init.cxx src/device/launch.cxx
-          src/device/memalloc.cxx src/device/memcpy.cxx src/device/memfree.cxx
-          src/device/memset.cxx src/device/panic.cxx src/device/poweroff.cxx
-          src/device/poweron.cxx src/device/read.cxx src/device/shm.cxx
-          src/device/signal.cxx src/device/write.cxx
+  PRIVATE src/device/cleanup.cxx src/device/exit.cxx src/device/init.cxx
+          src/device/launch.cxx src/device/memalloc.cxx src/device/memcpy.cxx
+          src/device/memfree.cxx src/device/memset.cxx src/device/panic.cxx
+          src/device/poweroff.cxx src/device/poweron.cxx src/device/read.cxx
+          src/device/shm.cxx src/device/signal.cxx src/device/write.cxx
           # these are only included below so that they appear when using IDEs
           include/vcuda/device.h src/include/vcuda/device/config.h.in)
 
